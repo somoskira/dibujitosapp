@@ -1,1 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIBUJITOS SOCIAL // AUTH EDITION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #030803;
+      color: #00ff00;
+      font-family: 'Share Tech Mono', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
 
+    .app-card {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(8, 15, 8, 0.98);
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 25px rgba(0, 255, 0, 0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 92vh;
+      position: relative;
+    }
+
+    .header {
+      background: #001500;
+      border-bottom: 2px solid #00ff00;
+      padding: 10px;
+      text-align: center;
+    }
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      text-shadow: 0 0 10px #00ff00;
+    }
+
+    .modal-login {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #030803;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .btn-google {
+      background: #ffffff;
+      color: #333;
+      border: none;
+      padding: 12px 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    .btn-phone {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      border-bottom: 1px solid #004400;
+      background: #000;
+    }
+    .tab-btn {
+      flex: 1;
+      background: #051005;
+      color: #008800;
+      border: none;
+      padding: 10px 2px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: #00ff00;
+      border-bottom: 2px solid #00ff00;
+      background: #002000;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .tab-content.active { display: flex; }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #004400;
+      background: #000;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .msg-item, .post-card, .user-card {
+      background: rgba(0, 255, 0, 0.03);
+      border: 1px solid #004400;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .media-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      margin-top: 8px;
+      border: 1px solid #00ff00;
+    }
+    .user-avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid #00ff00;
+    }
+
+    .inp-txt {
+      width: 100%;
+      background: #000;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px;
+      border-radius: 6px;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    .btn-main {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .file-label {
+      display: block;
+      background: #111;
+      border: 1px dashed #00ff00;
+      color: #00ff00;
+      padding: 8px;
+      text-align: center;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+  </style>
+
+  <!-- FIREBASE SDK v9 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+    // PEGA AQUÍ LOS DATOS DE TU NUEVO PROYECTO DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY_AQUI",
+      authDomain: "tu-proyecto.firebaseapp.com",
+      projectId: "tu-proyecto",
+      storageBucket: "tu-proyecto.appspot.com",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const provider = new GoogleAuthProvider();
+
+    window.auth = auth;
+    window.db = db;
+    window.storage = storage;
+    window.provider = provider;
+    window.signInWithPopup = signInWithPopup;
+    window.signOut = signOut;
+    window.onAuthStateChanged = onAuthStateChanged;
+    window.addDoc = addDoc;
+    window.collection = collection;
+    window.query = query;
+    window.orderBy = orderBy;
+    window.onSnapshot = onSnapshot;
+    window.serverTimestamp = serverTimestamp;
+    window.ref = ref;
+    window.uploadBytes = uploadBytes;
+    window.getDownloadURL = getDownloadURL;
+  </script>
+</head>
+<body>
+
+  <div class="app-card">
+    
+    <div id="modalLogin" class="modal-login">
+      <h2 style="font-family:'Orbitron'; font-size: 16px; color:#00ff00; margin-bottom: 5px;">DIBUJITOS SOCIAL</h2>
+      <p style="font-size: 11px; color: #aaa; max-width: 280px;">Inicia sesión con tu cuenta para acceder al muro, chat y amigos.</p>
+
+      <button class="btn-google" onclick="loginConGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+        CONTINUAR CON GOOGLE
+      </button>
+
+      <button class="btn-phone" onclick="loginConTelefono()">
+        📱 INICIAR CON TELÉFONO
+      </button>
+    </div>
+
+    <div class="header">
+      <h1>DIBUJITOS SOCIAL</h1>
+      <p style="font-size: 9px; color: #00ffff;" id="userInfoText">ESPERANDO SESIÓN...</p>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="verTab('chatTab', this)">💬 CHAT</button>
+      <button class="tab-btn" onclick="verTab('muroTab', this)">📰 MURO</button>
+      <button class="tab-btn" onclick="verTab('amigosTab', this)">👥 AMIGOS</button>
+      <button class="tab-btn" onclick="verTab('perfilTab', this)">👤 PERFIL</button>
+    </div>
+
+    <div id="chatTab" class="tab-content active">
+      <div class="chat-box" id="chatBox"></div>
+      <div style="display: flex; gap: 5px;">
+        <input type="text" id="chatInput" class="inp-txt" placeholder="Escribe un mensaje..." style="margin-bottom: 0;">
+        <button class="btn-main" onclick="enviarMensaje()" style="width: 80px;">ENVIAR</button>
+      </div>
+    </div>
+
+    <div id="muroTab" class="tab-content">
+      <div class="post-card" style="border: 1px solid #00ff00;">
+        <h4 style="font-size: 11px; margin-bottom: 5px;">PUBLICAR EN EL MURO</h4>
+        <textarea id="postText" class="inp-txt" rows="2" placeholder="¿Qué quieres compartir con los dibujitos?"></textarea>
+        
+        <label class="file-label">
+          📁 Adjuntar Imagen, Video o Archivo
+          <input type="file" id="postFile" style="display: none;" onchange="mostrarNombreArchivo(this)">
+        </label>
+        <span id="fileName" style="font-size: 9px; color: #888; display: block; margin-bottom: 5px;"></span>
+
+        <button class="btn-main" onclick="subirPublicacion()">PUBLICAR</button>
+      </div>
+
+      <div id="muroFeed"></div>
+    </div>
+
+    <div id="amigosTab" class="tab-content">
+      <h3 style="font-size: 12px; margin-bottom: 10px;">COMUNIDAD DIBUJITO</h3>
+      <div id="listaUsuarios">
+        <div class="user-card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <b>👑 Franco Vidal</b>
+            <div style="font-size: 9px; color: #888;">Oficial</div>
+          </div>
+          <button class="btn-main" style="width: 100px; font-size: 9px;" onclick="alert('¡Solicitud enviada!')">➕ AGREGAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilTab" class="tab-content" style="align-items: center; justify-content: center; text-align: center;">
+      <img id="perfilFoto" src="https://via.placeholder.com/80" style="border-radius: 50%; border: 2px solid #00ff00; width: 80px; height: 80px; margin-bottom: 10px;">
+      <h3 id="perfilNombre" style="font-family: 'Orbitron'; color: #00ff00;">Usuario</h3>
+      <p id="perfilEmail" style="font-size: 11px; color: #00ffff; margin-top: 5px;">correo@ejemplo.com</p>
+      <button class="btn-main" onclick="cerrarSesionUsuario()" style="margin-top: 25px; background: #ff0055; color: #fff;">CERRAR SESIÓN</button>
+    </div>
+
+  </div>
+
+  <script>
+    let usuarioActual = null;
+
+    async function loginConGoogle() {
+      try {
+        await window.signInWithPopup(window.auth, window.provider);
+      } catch (error) {
+        alert("Error al iniciar sesión con Google: " + error.message);
+      }
+    }
+
+    function loginConTelefono() {
+      const fone = prompt("Ingresa tu número de teléfono móvil (+51...):");
+      if (fone) {
+        alert("Código de verificación enviado por SMS a " + fone);
+      }
+    }
+
+    function cerrarSesionUsuario() {
+      window.signOut(window.auth);
+    }
+
+    function verTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function mostrarNombreArchivo(input) {
+      if (input.files.length > 0) {
+        document.getElementById("fileName").textContent = "Archivo: " + input.files[0].name;
+      }
+    }
+
+    window.addEventListener('load', () => {
+      window.onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+          usuarioActual = user;
+          document.getElementById("modalLogin").style.display = "none";
+          document.getElementById("userInfoText").textContent = `🟢 ${user.displayName || 'Dibujito'} | ONLINE`;
+          
+          document.getElementById("perfilNombre").textContent = user.displayName || "Usuario Dibujito";
+          document.getElementById("perfilEmail").textContent = user.email || user.phoneNumber || "Cuenta Verificada";
+          if (user.photoURL) document.getElementById("perfilFoto").src = user.photoURL;
+
+          cargarChatYFeed();
+        } else {
+          usuarioActual = null;
+          document.getElementById("modalLogin").style.display = "flex";
+        }
+      });
+    });
+
+    function cargarChatYFeed() {
+      const qChat = window.query(window.collection(window.db, "mensajes"), window.orderBy("fecha", "asc"));
+      window.onSnapshot(qChat, (snap) => {
+        const box = document.getElementById("chatBox");
+        box.innerHTML = "";
+        snap.forEach(doc => {
+          const d = doc.data();
+          box.innerHTML += `
+            <div class="msg-item">
+              <div style="font-size: 11px; color: #00ffff; font-weight: bold;">${d.usuario}</div>
+              <div style="font-size: 12px; color: #fff;">${d.texto}</div>
+            </div>
+          `;
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+
+      const qMuro = window.query(window.collection(window.db, "muro"), window.orderBy("fecha", "desc"));
+      window.onSnapshot(qMuro, (snap) => {
+        const feed = document.getElementById("muroFeed");
+        feed.innerHTML = "";
+        snap.forEach(doc => {
+          const data = doc.data();
+          let mediaHtml = "";
+          if (data.fileUrl) {
+            if (data.fileType && data.fileType.startsWith("video")) {
+              mediaHtml = `<video src="${data.fileUrl}" controls class="media-preview"></video>`;
+            } else if (data.fileType && data.fileType.startsWith("image")) {
+              mediaHtml = `<img src="${data.fileUrl}" class="media-preview">`;
+            } else {
+              mediaHtml = `<a href="${data.fileUrl}" target="_blank" style="color:#00ffff; font-size:11px; display:block; margin-top:5px;">📁 Descargar Archivo</a>`;
+            }
+          }
+
+          feed.innerHTML += `
+            <div class="post-card">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                <img src="${data.foto || 'https://via.placeholder.com/30'}" class="user-avatar-img">
+                <div style="font-size: 11px; color: #00ffff; font-weight: bold;">${data.usuario}</div>
+              </div>
+              <p style="font-size: 12px; color: #fff;">${data.texto}</p>
+              ${mediaHtml}
+            </div>
+          `;
+        });
+      });
+    }
+
+    async function enviarMensaje() {
+      const input = document.getElementById("chatInput");
+      const txt = input.value.trim();
+      if (!txt || !usuarioActual) return;
+
+      await window.addDoc(window.collection(window.db, "mensajes"), {
+        usuario: usuarioActual.displayName || "Dibujito",
+        texto: txt,
+        fecha: window.serverTimestamp()
+      });
+      input.value = "";
+    }
+
+    async function subirPublicacion() {
+      const txt = document.getElementById("postText").value.trim();
+      const fileInput = document.getElementById("postFile");
+      let fileUrl = "";
+      let fileType = "";
+
+      if (!txt && fileInput.files.length === 0) return alert("Escribe un mensaje o adjunta un archivo.");
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileType = file.type;
+        const storageRef = window.ref(window.storage, 'muro_files/' + Date.now() + '_' + file.name);
+        await window.uploadBytes(storageRef, file);
+        fileUrl = await window.getDownloadURL(storageRef);
+      }
+
+      await window.addDoc(window.collection(window.db, "muro"), {
+        usuario: usuarioActual.displayName || "Dibujito",
+        foto: usuarioActual.photoURL || "",
+        texto: txt,
+        fileUrl: fileUrl,
+        fileType: fileType,
+        fecha: window.serverTimestamp()
+      });
+
+      document.getElementById("postText").value = "";
+      document.getElementById("postFile").value = "";
+      document.getElementById("fileName").textContent = "";
+    }
+  </script>
+</body>
+</html>
