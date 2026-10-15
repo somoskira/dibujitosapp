@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DIBUJITOS SOCIAL // AUTH EDITION</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -183,21 +184,20 @@
     }
   </style>
 
-  <!-- FIREBASE SDK v9 -->
+  <!-- FIREBASE SDK v13 & CONFIGURACIÓN OFICIAL -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-storage.js";
 
-    // PEGA AQUÍ LOS DATOS DE TU NUEVO PROYECTO DE FIREBASE
     const firebaseConfig = {
-      apiKey: "TU_API_KEY_AQUI",
-      authDomain: "tu-proyecto.firebaseapp.com",
-      projectId: "tu-proyecto",
-      storageBucket: "tu-proyecto.appspot.com",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
+      apiKey: "AIzaSyAjj4u975FQGoOfzf3BhRzjzMkhJEOalTk",
+      authDomain: "dibujitosapp.firebaseapp.com",
+      projectId: "dibujitosapp",
+      storageBucket: "dibujitosapp.firebasestorage.app",
+      messagingSenderId: "927056761212",
+      appId: "1:927056761212:web:4548cb39c64462eb9b94f9"
     };
 
     const app = initializeApp(firebaseConfig);
