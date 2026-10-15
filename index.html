@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DIBUJITOS SOCIAL // AUTH EDITION</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -18,7 +17,6 @@
       min-height: 100vh;
       padding: 10px;
     }
-
     .app-card {
       max-width: 500px;
       width: 100%;
@@ -32,7 +30,6 @@
       height: 92vh;
       position: relative;
     }
-
     .header {
       background: #001500;
       border-bottom: 2px solid #00ff00;
@@ -44,7 +41,6 @@
       font-size: 15px;
       text-shadow: 0 0 10px #00ff00;
     }
-
     .modal-login {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -74,20 +70,6 @@
       width: 100%;
       margin-top: 15px;
     }
-    .btn-phone {
-      background: #00ff00;
-      color: #000;
-      border: none;
-      padding: 12px 20px;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: bold;
-      font-size: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 10px;
-    }
-
     .nav-tabs {
       display: flex;
       border-bottom: 1px solid #004400;
@@ -109,7 +91,6 @@
       background: #002000;
       font-weight: bold;
     }
-
     .tab-content {
       flex: 1;
       display: none;
@@ -118,7 +99,6 @@
       padding: 10px;
     }
     .tab-content.active { display: flex; }
-
     .chat-box {
       flex: 1;
       overflow-y: auto;
@@ -148,7 +128,6 @@
       border-radius: 50%;
       border: 1px solid #00ff00;
     }
-
     .inp-txt {
       width: 100%;
       background: #000;
@@ -184,12 +163,12 @@
     }
   </style>
 
-  <!-- FIREBASE SDK v13 & CONFIGURACIÓN OFICIAL -->
+  <!-- FIREBASE SDK v9 (Versión Estable y Segura para Web) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAjj4u975FQGoOfzf3BhRzjzMkhJEOalTk",
@@ -230,15 +209,11 @@
     
     <div id="modalLogin" class="modal-login">
       <h2 style="font-family:'Orbitron'; font-size: 16px; color:#00ff00; margin-bottom: 5px;">DIBUJITOS SOCIAL</h2>
-      <p style="font-size: 11px; color: #aaa; max-width: 280px;">Inicia sesión con tu cuenta para acceder al muro, chat y amigos.</p>
+      <p style="font-size: 11px; color: #aaa; max-width: 280px;">Inicia sesión con tu cuenta de Google para acceder al chat y muro.</p>
 
       <button class="btn-google" onclick="loginConGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
         CONTINUAR CON GOOGLE
-      </button>
-
-      <button class="btn-phone" onclick="loginConTelefono()">
-        📱 INICIAR CON TELÉFONO
       </button>
     </div>
 
@@ -308,14 +283,7 @@
       try {
         await window.signInWithPopup(window.auth, window.provider);
       } catch (error) {
-        alert("Error al iniciar sesión con Google: " + error.message);
-      }
-    }
-
-    function loginConTelefono() {
-      const fone = prompt("Ingresa tu número de teléfono móvil (+51...):");
-      if (fone) {
-        alert("Código de verificación enviado por SMS a " + fone);
+        alert("Error al iniciar sesión: " + error.message);
       }
     }
 
@@ -344,7 +312,7 @@
           document.getElementById("userInfoText").textContent = `🟢 ${user.displayName || 'Dibujito'} | ONLINE`;
           
           document.getElementById("perfilNombre").textContent = user.displayName || "Usuario Dibujito";
-          document.getElementById("perfilEmail").textContent = user.email || user.phoneNumber || "Cuenta Verificada";
+          document.getElementById("perfilEmail").textContent = user.email || "Cuenta Verificada";
           if (user.photoURL) document.getElementById("perfilFoto").src = user.photoURL;
 
           cargarChatYFeed();
